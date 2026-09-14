@@ -1,0 +1,157 @@
+{
+  "info": {
+    "_postman_id": "29e81082-5897-4fb3-a107-d69b4a640c35",
+    "name": "Fundamentos API Java",
+    "description": "Collection da API didática multicamadas com Spring Boot, PostgreSQL, OpenAPI e Swagger UI.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "produtoId",
+      "value": "1",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Saúde",
+      "item": [
+        {
+          "name": "Verificar saúde da API",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/saude",
+            "description": "Confirma que a aplicação Java está respondendo."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Produtos",
+      "item": [
+        {
+          "name": "Listar produtos",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/produtos"
+          },
+          "response": []
+        },
+        {
+          "name": "Criar produto",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 201 Created\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "const resposta = pm.response.json();",
+                  "if (resposta.id) {",
+                  "    pm.collectionVariables.set(\"produtoId\", resposta.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Teclado mecânico\",\n  \"preco\": 299.90,\n  \"ativo\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/api/produtos",
+            "description": "Cria um produto e salva automaticamente o ID retornado na variável produtoId."
+          },
+          "response": []
+        },
+        {
+          "name": "Buscar produto por ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/produtos/{{produtoId}}"
+          },
+          "response": []
+        },
+        {
+          "name": "Atualizar produto",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Teclado mecânico ABNT2\",\n  \"preco\": 319.90,\n  \"ativo\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/api/produtos/{{produtoId}}"
+          },
+          "response": []
+        },
+        {
+          "name": "Excluir produto",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/api/produtos/{{produtoId}}"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Documentação",
+      "item": [
+        {
+          "name": "Obter OpenAPI JSON",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/v3/api-docs"
+          },
+          "response": []
+        },
+        {
+          "name": "Obter OpenAPI YAML",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/v3/api-docs.yaml"
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

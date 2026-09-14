@@ -1,0 +1,31 @@
+### Saude
+GET http://localhost:8080/api/saude
+
+### Criar produto
+POST http://localhost:8080/api/produtos
+Content-Type: application/json
+
+{
+  "nome": "Teclado mecanico",
+  "preco": 299.90,
+  "ativo": true
+}
+
+### Listar produtos
+GET http://localhost:8080/api/produtos
+
+### Buscar produto
+GET http://localhost:8080/api/produtos/1
+
+### Atualizar produto
+PUT http://localhost:8080/api/produtos/1
+Content-Type: application/json
+
+{
+  "nome": "Teclado mecanico ABNT2",
+  "preco": 319.90,
+  "ativo": true
+}
+
+### Excluir produto
+DELETE http://localhost:8080/api/produtos/1
