@@ -2,6 +2,114 @@
 
 Este guia prepara um ambiente local e executa o projeto `fundamentos-api` em Windows, Linux ou macOS. A aplicação expõe uma API REST de produtos em `http://localhost:8080`, usa Spring Boot, Spring Data JPA e grava os dados em um servidor PostgreSQL instalado na própria máquina. O pgAdmin administra o banco, mas não substitui o servidor PostgreSQL.
 
+## Roteiro principal: do zero ate a carga
+
+Siga esta ordem. Ela vale para pgAdmin, DBeaver ou terminal.
+
+### 1. Criar a conexao com o PostgreSQL
+
+No pgAdmin, registre um servidor com os dados abaixo. No DBeaver, crie uma conexão PostgreSQL com os mesmos dados.
+
+| Campo | Ambiente local |
+| --- | --- |
+| Host | `localhost` |
+| Porta | `5432` |
+| Database inicial | `postgres` |
+| Usuario | o usuario criado na instalacao, normalmente `postgres` |
+| Senha | a senha definida durante a instalacao |
+
+Depois de conectar no database `postgres`, crie o database do projeto. Execute este comando sozinho, com auto-commit ligado:
+
+```sql
+CREATE DATABASE api_fundamentos;
+```
+
+Atualize a árvore do cliente, conecte no database `api_fundamentos` e confirme:
+
+```sql
+SELECT current_database(), current_user;
+```
+
+### 2. Obter ou montar a URL JDBC
+
+Para PostgreSQL local, a URL é formada por host, porta e database:
+
+```text
+jdbc:postgresql://localhost:5432/api_fundamentos
+```
+
+Para Supabase, crie/abra o projeto, clique em **Connect** no Dashboard e escolha **Session pooler** para esta aplicação Spring Boot. Copie host, porta, usuario e database apresentados pelo painel e monte a URL JDBC:
+
+```text
+jdbc:postgresql://HOST:PORT/DATABASE?sslmode=require
+```
+
+O Supabase informa que a string é obtida pelo botão **Connect**; aplicações persistentes devem usar conexão direta ou Session pooler, enquanto Transaction pooler é destinado a conexões curtas e não suporta prepared statements. Veja a [documentacao oficial do Supabase](https://supabase.com/docs/guides/database/connecting-to-postgres).
+
+### 3. Adicionar a conexão no projeto
+
+O arquivo do projeto é `src/main/resources/application.properties`:
+
+```properties
+spring.datasource.url=${DB_URL:jdbc:postgresql://localhost:5432/api_fundamentos}
+spring.datasource.username=${DB_USER:postgres}
+spring.datasource.password=${DB_PASSWORD:}
+```
+
+Para uma conexão local com outro usuário, ou para Supabase, não altere senha no Git. Informe os valores por variáveis de ambiente.
+
+macOS/Linux:
+
+```bash
+export DB_URL='jdbc:postgresql://HOST:PORT/DATABASE?sslmode=require'
+export DB_USER='SEU_USUARIO'
+export DB_PASSWORD='SUA_SENHA'
+```
+
+Windows PowerShell:
+
+```powershell
+$env:DB_URL = 'jdbc:postgresql://HOST:PORT/DATABASE?sslmode=require'
+$env:DB_USER = 'SEU_USUARIO'
+$env:DB_PASSWORD = 'SUA_SENHA'
+```
+
+### 4. Conectar e rodar a API
+
+Na pasta que contém `pom.xml`:
+
+```bash
+mvn clean test
+mvn spring-boot:run
+```
+
+Quando aparecer que a aplicação iniciou na porta `8080`, teste:
+
+```text
+http://localhost:8080/api/saude
+http://localhost:8080/swagger-ui.html
+```
+
+### 5. Executar a carga por ultimo
+
+Com a API parada ou em execução, abra o cliente SQL conectado ao database `api_fundamentos` e execute:
+
+1. `sql/07_carga_passo_a_passo_relacionamentos.sql` para criar `categorias`, `produtos` e a chave estrangeira.
+2. `sql/09_carga_base_completa.sql` para inserir 8 categorias e 29 produtos.
+
+Se o auto-commit estiver desligado, finalize com:
+
+```sql
+COMMIT;
+```
+
+Atualize a pasta `Tables` com `F5` e confira a carga:
+
+```sql
+SELECT COUNT(*) AS total_produtos
+FROM public.produtos;
+```
+
 ## Arquitetura local
 
 ```text
@@ -118,176 +226,63 @@ Em distribuições diferentes, use os pacotes oficiais indicados em <https://www
 
 5. Salve. Se o cadastro falhar, confirme o serviço, a porta e a senha antes de alterar arquivos do PostgreSQL.
 
-## Criação do usuário e do banco
+## Scripts SQL de produtos e categorias
 
-No pgAdmin, selecione o banco `postgres` do servidor local e abra `Tools` e `Query Tool`.
+### Execução recomendada — produtos e categorias
 
-Execute primeiro o conteúdo de `sql/01_criar_usuario.sql`:
+Os scripts abaixo assumem que o database `api_fundamentos` já existe e que você está conectado nele. Eles não criam usuário, database, estoque ou fornecedores.
 
-```sql
-CREATE ROLE api_user WITH LOGIN PASSWORD 'api123';
-```
+O arquivo `sql/07_carga_passo_a_passo_relacionamentos.sql` cria as tabelas `categorias` e `produtos`, a chave estrangeira e as consultas de estrutura. O arquivo `sql/08_carga_dados_relacionamentos.sql` insere categorias e produtos e demonstra o relacionamento `1:N`.
 
-Depois execute separadamente o conteúdo de `sql/02_criar_banco.sql`:
+Para uma base maior, use `sql/09_carga_base_completa.sql` no lugar do arquivo `08`. Ele adiciona oito categorias e 29 produtos de exemplo.
 
-```sql
-CREATE DATABASE api_fundamentos OWNER api_user ENCODING 'UTF8';
-```
-
-O PostgreSQL não permite `CREATE DATABASE` dentro de uma transação. Por isso os comandos ficam em arquivos separados. Atualize a árvore de bancos com `Refresh` e confirme que `api_fundamentos` aparece.
-
-Alternativa pelo terminal, usando o usuário administrador:
+Execute pelo terminal, a partir da pasta do projeto:
 
 ```bash
-psql -U postgres -h localhost -c "CREATE ROLE api_user WITH LOGIN PASSWORD 'api123';"
-psql -U postgres -h localhost -c "CREATE DATABASE api_fundamentos OWNER api_user ENCODING 'UTF8';"
+psql -U SEU_USUARIO -h localhost -d api_fundamentos -f sql/07_carga_passo_a_passo_relacionamentos.sql
+# Carga basica:
+psql -U SEU_USUARIO -h localhost -d api_fundamentos -f sql/08_carga_dados_relacionamentos.sql
+# Ou carga completa:
+psql -U SEU_USUARIO -h localhost -d api_fundamentos -f sql/09_carga_base_completa.sql
 ```
 
-No Linux, a autenticação local pode exigir:
+No Linux, quando a instalação usa autenticação administrativa pelo sistema operacional:
 
 ```bash
-sudo -u postgres psql -c "CREATE ROLE api_user WITH LOGIN PASSWORD 'api123';"
-sudo -u postgres psql -c "CREATE DATABASE api_fundamentos OWNER api_user ENCODING 'UTF8';"
+sudo -u postgres psql -d api_fundamentos -f sql/07_carga_passo_a_passo_relacionamentos.sql
+# Carga basica:
+psql -U SEU_USUARIO -h localhost -d api_fundamentos -f sql/08_carga_dados_relacionamentos.sql
+# Ou carga completa:
+psql -U SEU_USUARIO -h localhost -d api_fundamentos -f sql/09_carga_base_completa.sql
 ```
 
-## Queries prontas para executar no pgAdmin
+Os três arquivos podem ser abertos no pgAdmin e executados uma query por vez. Eles são idempotentes.
 
-As queries abaixo ficam reunidas aqui para uso durante a aula. Execute cada bloco no banco indicado.
+Para Supabase, copie host, porta e usuário no painel **Connect**. Substitua os valores abaixo pelos dados copiados:
 
-### 1. Criar ou redefinir o usuário da aplicação
+```bash
+psql -h HOST -p PORTA \
+  -U USUARIO -d DATABASE -W \
+  -f sql/07_carga_passo_a_passo_relacionamentos.sql
 
-Conecte o Query Tool ao banco administrativo `postgres`. Para a primeira execução:
-
-```sql
-CREATE ROLE api_user
-    WITH LOGIN
-    PASSWORD 'api123';
+psql -h HOST -p PORTA \
+  -U USUARIO -d DATABASE -W \
+  -f sql/09_carga_base_completa.sql
 ```
 
-Se `api_user` já existir e você precisar apenas redefinir a senha:
+## Conteúdo dos arquivos SQL
 
-```sql
-ALTER ROLE api_user
-    WITH LOGIN
-    PASSWORD 'api123';
-```
+A pasta `sql` contém três arquivos, com responsabilidades separadas:
 
-### 2. Criar o banco
+- `07_carga_passo_a_passo_relacionamentos.sql`: tabelas `categorias` e `produtos`, relacionamento e consultas de estrutura.
+- `08_carga_dados_relacionamentos.sql`: carga de categorias e produtos e consultas com `JOIN`.
+- `09_carga_base_completa.sql`: carga ampliada com oito categorias e 29 produtos.
 
-Ainda conectado ao banco `postgres`, execute este comando separadamente:
-
-```sql
-CREATE DATABASE api_fundamentos
-    WITH OWNER = api_user
-    ENCODING = 'UTF8';
-```
-
-Não selecione o comando de criação do banco junto com outras queries em uma transação. Se o banco já existir, não execute novamente.
-
-### 3. Verificar banco e usuário
-
-Atualize a árvore do pgAdmin, conecte o Query Tool ao banco `api_fundamentos` usando `api_user` e execute:
-
-```sql
-SELECT
-    current_database() AS banco_atual,
-    current_user AS usuario_atual,
-    version() AS versao_postgresql;
-```
-
-### 4. Consultar os produtos
-
-A tabela `produtos` é criada quando a API inicia pela primeira vez. Depois disso:
-
-```sql
-SELECT id, nome, preco, ativo
-FROM produtos
-ORDER BY id;
-```
-
-### 5. Inserir um produto diretamente no banco
-
-Use esta query apenas para demonstrar a diferença entre uma operação direta no banco e uma requisição pela API:
-
-```sql
-INSERT INTO produtos (nome, preco, ativo)
-VALUES ('Mouse sem fio', 149.90, TRUE)
-RETURNING id, nome, preco, ativo;
-```
-
-### 6. Atualizar um produto
-
-```sql
-UPDATE produtos
-SET preco = 129.90,
-    ativo = TRUE
-WHERE id = 1
-RETURNING id, nome, preco, ativo;
-```
-
-### 7. Excluir um produto
-
-```sql
-DELETE FROM produtos
-WHERE id = 1
-RETURNING id, nome, preco, ativo;
-```
-
-### 8. Conferir a estrutura criada pelo JPA
-
-```sql
-SELECT
-    column_name,
-    data_type,
-    is_nullable
-FROM information_schema.columns
-WHERE table_schema = 'public'
-  AND table_name = 'produtos'
-ORDER BY ordinal_position;
-```
-
-## Tabelas relacionadas de produtos
-
-O laboratório também possui scripts opcionais para praticar relacionamentos:
+Modelo criado:
 
 ```text
-categorias 1 -------- N produtos 1 -------- 1 estoques
-                           |
-                           N
-                           |
-                           N
-                     fornecedores
+categorias 1 -------- N produtos
 ```
-
-A relação entre produtos e fornecedores usa a tabela associativa `produtos_fornecedores`, que também armazena custo, código do fornecedor e prazo.
-
-Antes de executar esses scripts, inicie a API pelo menos uma vez para que o JPA crie a tabela `produtos`.
-
-### Executar pelo terminal
-
-A partir da pasta do projeto:
-
-```bash
-psql -h localhost -U api_user -d api_fundamentos -f sql/04_criar_tabelas_relacionadas.sql
-psql -h localhost -U api_user -d api_fundamentos -f sql/05_popular_tabelas_relacionadas.sql
-psql -h localhost -U api_user -d api_fundamentos -f sql/06_consultar_relacionamentos.sql
-```
-
-### Executar dentro do psql
-
-Se o prompt mostrar `api_fundamentos=>`, use:
-
-```sql
-\i '/Users/rafaelneves/Documents/FIAP - Arquitetura Caixa/outputs/SEGUNDA_ONDA/AULA_15_FUNDAMENTOS_DE_API_JAVA_POSTGRESQL/05_PROJETO_COMENTADO/sql/04_criar_tabelas_relacionadas.sql'
-\i '/Users/rafaelneves/Documents/FIAP - Arquitetura Caixa/outputs/SEGUNDA_ONDA/AULA_15_FUNDAMENTOS_DE_API_JAVA_POSTGRESQL/05_PROJETO_COMENTADO/sql/05_popular_tabelas_relacionadas.sql'
-\i '/Users/rafaelneves/Documents/FIAP - Arquitetura Caixa/outputs/SEGUNDA_ONDA/AULA_15_FUNDAMENTOS_DE_API_JAVA_POSTGRESQL/05_PROJETO_COMENTADO/sql/06_consultar_relacionamentos.sql'
-```
-
-Os scripts foram separados por responsabilidade:
-
-- `04_criar_tabelas_relacionadas.sql`: cria chaves primárias, estrangeiras, restrições e índices.
-- `05_popular_tabelas_relacionadas.sql`: cadastra categorias, fornecedores, produtos, estoque e vínculos.
-- `06_consultar_relacionamentos.sql`: demonstra `INNER JOIN`, `LEFT JOIN`, agregações e relacionamento N:N.
 
 ## Configuração da aplicação
 
@@ -299,19 +294,23 @@ spring.datasource.username=${DB_USER:api_user}
 spring.datasource.password=${DB_PASSWORD:api123}
 ```
 
-O texto depois de `:` é o padrão local. Variáveis de ambiente substituem esses padrões sem modificar o arquivo. Para usar outra senha:
+O texto depois de `:` é o padrão local. Variáveis de ambiente substituem esses padrões sem modificar o arquivo. Para informar URL, usuário e senha:
 
 macOS ou Linux:
 
 ```bash
-export DB_PASSWORD='sua_senha'
+export DB_URL='jdbc:postgresql://HOST:PORT/DATABASE?sslmode=require'
+export DB_USER='SEU_USUARIO'
+export DB_PASSWORD='SUA_SENHA'
 mvn spring-boot:run
 ```
 
 PowerShell:
 
 ```powershell
-$env:DB_PASSWORD='sua_senha'
+$env:DB_URL='jdbc:postgresql://HOST:PORT/DATABASE?sslmode=require'
+$env:DB_USER='SEU_USUARIO'
+$env:DB_PASSWORD='SUA_SENHA'
 mvn spring-boot:run
 ```
 
