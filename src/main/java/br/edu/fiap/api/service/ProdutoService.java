@@ -1,8 +1,8 @@
-package br.edu.fiap.api.produto.aplicacao;
+package br.edu.fiap.api.service;
 
-import br.edu.fiap.api.produto.dominio.Produto;
-import br.edu.fiap.api.produto.excecao.ProdutoNaoEncontradoException;
-import br.edu.fiap.api.produto.infraestrutura.ProdutoRepository;
+import br.edu.fiap.api.entity.Produto;
+import br.edu.fiap.api.exception.ProdutoNaoEncontradoException;
+import br.edu.fiap.api.repository.ProdutoRepository;
 import java.math.BigDecimal;
 import java.util.List;
 import org.springframework.stereotype.Service;

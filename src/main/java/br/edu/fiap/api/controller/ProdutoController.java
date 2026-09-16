@@ -1,9 +1,9 @@
-package br.edu.fiap.api.produto.web;
+package br.edu.fiap.api.controller;
 
-import br.edu.fiap.api.produto.aplicacao.ProdutoService;
-import br.edu.fiap.api.produto.dominio.Produto;
-import br.edu.fiap.api.produto.web.dto.ProdutoRequest;
-import br.edu.fiap.api.produto.web.dto.ProdutoResponse;
+import br.edu.fiap.api.controller.dto.ProdutoRequest;
+import br.edu.fiap.api.controller.dto.ProdutoResponse;
+import br.edu.fiap.api.entity.Produto;
+import br.edu.fiap.api.service.ProdutoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;

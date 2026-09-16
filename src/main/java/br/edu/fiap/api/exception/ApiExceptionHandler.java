@@ -1,6 +1,5 @@
-package br.edu.fiap.api.erro;
+package br.edu.fiap.api.exception;
 
-import br.edu.fiap.api.produto.excecao.ProdutoNaoEncontradoException;
 import java.time.Instant;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -15,6 +14,10 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
  */
 @RestControllerAdvice
 public class ApiExceptionHandler {
+    /** Cria o tradutor de exceções usado por todos os controllers. */
+    public ApiExceptionHandler() {
+    }
+
     /**
      * Converte a ausência de um produto em {@code 404 Not Found}.
      *

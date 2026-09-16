@@ -110,6 +110,51 @@ SELECT COUNT(*) AS total_produtos
 FROM public.produtos;
 ```
 
+## Mini tutorial: Supabase com IPv4
+
+Use esta opção quando a API Java estiver na sua máquina ou em uma rede que não possua IPv6.
+
+1. Acesse <https://supabase.com/dashboard>, clique em **New project**, defina nome, região e senha do database. Ao final, o projeto já possui um PostgreSQL; o database padrão normalmente é `postgres`.
+2. Abra o projeto, clique em **Connect** e selecione **Session pooler**. Essa é a conexão compartilhada compatível com IPv4 e indicada para uma API Spring Boot que fica em execução.
+3. Copie exatamente do painel: `Host`, `Port`, `Database` e `User`. Não tente montar o host manualmente. Para Session pooler, a porta normalmente é `5432` e o usuário possui o formato `postgres.PROJECT_REF`.
+4. Monte a URL JDBC usando os valores copiados:
+
+```text
+jdbc:postgresql://HOST:PORT/DATABASE?sslmode=require
+```
+
+5. Na pasta do projeto, configure a conexão sem salvar a senha no arquivo:
+
+```bash
+export DB_URL='jdbc:postgresql://HOST:PORT/DATABASE?sslmode=require'
+export DB_USER='USUARIO_COPIADO_DO_SUPABASE'
+export DB_PASSWORD='SUA_SENHA_DO_SUPABASE'
+```
+
+No Windows PowerShell:
+
+```powershell
+$env:DB_URL = 'jdbc:postgresql://HOST:PORT/DATABASE?sslmode=require'
+$env:DB_USER = 'USUARIO_COPIADO_DO_SUPABASE'
+$env:DB_PASSWORD = 'SUA_SENHA_DO_SUPABASE'
+```
+
+6. Teste a conexão antes de iniciar a API:
+
+```bash
+psql -h HOST -p PORT -U USUARIO -d DATABASE -W
+```
+
+Depois do prompt aparecer, valide:
+
+```sql
+SELECT current_database(), current_user;
+```
+
+7. Execute `mvn spring-boot:run`. Quando a API responder em `http://localhost:8080/api/saude`, execute primeiro o script `07` e depois o `09` conectado ao mesmo database do Supabase.
+
+Evite Transaction pooler (`6543`) neste projeto: ele é voltado a conexões curtas e não suporta prepared statements. A documentação oficial explica que Session pooler usa IPv4 e que host, porta e usuário devem ser copiados pelo painel **Connect**: <https://supabase.com/docs/guides/database/connecting-to-postgres>.
+
 ## Arquitetura local
 
 ```text
@@ -467,36 +512,36 @@ java -jar target/fundamentos-api-1.0.0.jar
 ```text
 src/main/java/br/edu/fiap/api
 ├── FundamentosApiApplication.java
-├── erro
-│   └── ApiExceptionHandler.java
-├── produto
-│   ├── aplicacao
-│   │   └── ProdutoService.java
-│   ├── dominio
-│   │   └── Produto.java
-│   ├── excecao
-│   │   └── ProdutoNaoEncontradoException.java
-│   ├── infraestrutura
-│   │   └── ProdutoRepository.java
-│   └── web
-│       ├── ProdutoController.java
-│       └── dto
-│           ├── ProdutoRequest.java
-│           └── ProdutoResponse.java
-└── saude
-    └── SaudeController.java
+├── config
+│   └── OpenApiConfig.java
+├── controller
+│   ├── ProdutoController.java
+│   ├── SaudeController.java
+│   └── dto
+│       ├── ProdutoRequest.java
+│       └── ProdutoResponse.java
+├── entity
+│   └── Produto.java
+├── exception
+│   ├── ApiExceptionHandler.java
+│   └── ProdutoNaoEncontradoException.java
+├── repository
+│   └── ProdutoRepository.java
+└── service
+    └── ProdutoService.java
 ```
 
 ### Responsabilidade de cada camada
 
 | Camada | Pacote | Responsabilidade |
 | --- | --- | --- |
-| Web | `produto.web` | Traduz método, URI, cabeçalhos e JSON para chamadas Java |
-| DTO | `produto.web.dto` | Define os contratos de entrada e saída sem expor a entidade |
-| Aplicação | `produto.aplicacao` | Executa casos de uso e delimita transações |
-| Domínio | `produto.dominio` | Mantém o estado e o comportamento do produto |
-| Infraestrutura | `produto.infraestrutura` | Persiste dados por meio do Spring Data JPA |
-| Exceções | `produto.excecao` e `erro` | Representa falhas esperadas e as converte em respostas HTTP |
+| Controller | `controller` | Traduz método, URI, cabeçalhos e JSON para chamadas Java |
+| DTO | `controller.dto` | Define os contratos de entrada e saída sem expor a entidade |
+| Service | `service` | Executa casos de uso e delimita transações |
+| Entity | `entity` | Mantém o estado do produto e seu mapeamento JPA |
+| Repository | `repository` | Persiste dados por meio do Spring Data JPA |
+| Exception | `exception` | Representa falhas esperadas e as converte em respostas HTTP |
+| Config | `config` | Centraliza integrações e metadados, como Swagger/OpenAPI |
 
 O fluxo principal é:
 

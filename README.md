@@ -139,9 +139,15 @@ Para usar o Postman, importe `postman/Fundamentos_API_Java.postman_collection.js
 ## Estrutura
 
 ```text
-web -> aplicacao -> infraestrutura -> PostgreSQL
-             |
-           dominio
+controller (Controller + DTO)
+        |
+service (regras de negocio)
+        |
+repository (Spring Data JPA)
+        |
+entity (Produto)
+        |
+PostgreSQL
 ```
 
-`web` recebe HTTP, `aplicacao` concentra regras, `infraestrutura` acessa o banco e `dominio` representa o produto.
+Os pacotes são separados por camada: `controller`, `controller.dto`, `service`, `repository`, `entity`, `exception` e `config`. O fluxo da requisição é `controller → service → repository → PostgreSQL`; as entidades representam os dados persistidos.

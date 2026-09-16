@@ -1,6 +1,6 @@
-package br.edu.fiap.api.produto.web.dto;
+package br.edu.fiap.api.controller.dto;
 
-import br.edu.fiap.api.produto.dominio.Produto;
+import br.edu.fiap.api.entity.Produto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.math.BigDecimal;
 

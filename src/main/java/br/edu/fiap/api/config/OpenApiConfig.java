@@ -1,4 +1,4 @@
-package br.edu.fiap.api.configuracao;
+package br.edu.fiap.api.config;
 
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.info.Contact;
@@ -25,4 +25,7 @@ import org.springframework.context.annotation.Configuration;
         }
 )
 public class OpenApiConfig {
+    /** Cria a configuração baseada nas anotações OpenAPI desta classe. */
+    public OpenApiConfig() {
+    }
 }

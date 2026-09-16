@@ -1,4 +1,4 @@
-package br.edu.fiap.api.produto.excecao;
+package br.edu.fiap.api.exception;
 
 /**
  * Indica que não existe produto com o identificador informado.

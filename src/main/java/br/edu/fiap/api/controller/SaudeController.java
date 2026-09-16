@@ -1,4 +1,4 @@
-package br.edu.fiap.api.saude;
+package br.edu.fiap.api.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -13,6 +13,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @Tag(name = "Saúde")
 public class SaudeController {
+    /** Cria o controller da rota de saúde. */
+    public SaudeController() {
+    }
+
     /**
      * Informa que o processo Java está atendendo requisições.
      *

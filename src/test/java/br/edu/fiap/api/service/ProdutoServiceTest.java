@@ -1,11 +1,11 @@
-package br.edu.fiap.api.produto.aplicacao;
+package br.edu.fiap.api.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import br.edu.fiap.api.produto.dominio.Produto;
-import br.edu.fiap.api.produto.excecao.ProdutoNaoEncontradoException;
-import br.edu.fiap.api.produto.infraestrutura.ProdutoRepository;
+import br.edu.fiap.api.entity.Produto;
+import br.edu.fiap.api.exception.ProdutoNaoEncontradoException;
+import br.edu.fiap.api.repository.ProdutoRepository;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;

@@ -1,4 +1,4 @@
-package br.edu.fiap.api.produto.dominio;
+package br.edu.fiap.api.entity;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -56,22 +56,38 @@ public class Produto {
         this.ativo = ativo;
     }
 
-    /** @return identificador atribuído pelo banco */
+    /**
+     * Obtém o identificador atribuído pelo banco.
+     *
+     * @return identificador atribuído pelo banco
+     */
     public Long getId() {
         return id;
     }
 
-    /** @return nome do produto */
+    /**
+     * Obtém o nome apresentado pela API.
+     *
+     * @return nome do produto
+     */
     public String getNome() {
         return nome;
     }
 
-    /** @return preço do produto */
+    /**
+     * Obtém o preço de venda do produto.
+     *
+     * @return preço do produto
+     */
     public BigDecimal getPreco() {
         return preco;
     }
 
-    /** @return {@code true} quando o produto está ativo */
+    /**
+     * Informa se o produto está ativo.
+     *
+     * @return {@code true} quando o produto está ativo
+     */
     public boolean isAtivo() {
         return ativo;
     }
