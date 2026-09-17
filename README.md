@@ -117,11 +117,22 @@ Endpoints principais:
 
 ```text
 GET    /api/saude
+
+-- PRODUTOS --
+
 GET    /api/produtos
 GET    /api/produtos/{id}
 POST   /api/produtos
 PUT    /api/produtos/{id}
 DELETE /api/produtos/{id}
+
+-- CATEGORIAS --
+
+GET    /api/categorias
+GET    /api/categorias/{id}
+POST   /api/categorias
+PUT    /api/categorias/{id}
+DELETE /api/categorias/{id}
 ```
 
 Exemplo de criação de produto:
@@ -131,6 +142,15 @@ Exemplo de criação de produto:
   "nome": "Teclado mecanico",
   "preco": 299.90,
   "ativo": true
+}
+```
+
+Exemplo de criação de categoria:
+
+```json
+{
+  "nome": "Eletrônicos",
+  "descrição": "Produtos eletrônicos e acessórios"
 }
 ```
 
