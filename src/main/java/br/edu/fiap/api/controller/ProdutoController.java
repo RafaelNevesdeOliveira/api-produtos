@@ -122,7 +122,7 @@ public class ProdutoController {
      * Exclui um produto.
      *
      * @param id identificador recebido na URI
-     * @return resposta 204 sem corpo
+     * @return 
      */
     @DeleteMapping("/{id}")
     @Operation(summary = "Excluir produto")
