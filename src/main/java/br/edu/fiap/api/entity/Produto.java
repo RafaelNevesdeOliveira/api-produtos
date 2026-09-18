@@ -1,10 +1,7 @@
 package br.edu.fiap.api.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+
 import java.math.BigDecimal;
 
 /**
@@ -19,10 +16,14 @@ public class Produto {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private String nome;
     private BigDecimal preco;
     private boolean ativo;
+
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "categoria.id")
+    private Categoria categoria;
 
     /**
      * Construtor exigido pelo JPA.
@@ -37,10 +38,11 @@ public class Produto {
      * @param preco preço de venda
      * @param ativo indica se o produto está ativo
      */
-    public Produto(String nome, BigDecimal preco, boolean ativo) {
+    public Produto(String nome, BigDecimal preco, boolean ativo, Categoria categoria) {
         this.nome = nome;
         this.preco = preco;
         this.ativo = ativo;
+        this.categoria = categoria;
     }
 
     /**
@@ -50,10 +52,11 @@ public class Produto {
      * @param preco novo preço
      * @param ativo novo estado de ativação
      */
-    public void atualizar(String nome, BigDecimal preco, boolean ativo) {
+    public void atualizar(String nome, BigDecimal preco, boolean ativo, Categoria categoria) {
         this.nome = nome;
         this.preco = preco;
         this.ativo = ativo;
+        this.categoria = categoria;
     }
 
     /**
@@ -91,4 +94,6 @@ public class Produto {
     public boolean isAtivo() {
         return ativo;
     }
+
+    public Categoria getCategoria(){ return categoria;}
 }

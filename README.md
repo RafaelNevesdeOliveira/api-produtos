@@ -1,6 +1,6 @@
 # Fundamentos de API Java + PostgreSQL
 
-API REST didática de produtos, construída com Java 25, Spring Boot, Spring Data JPA e PostgreSQL. O projeto inclui Swagger, coleção Postman e scripts SQL para demonstrar o relacionamento `categorias 1:N produtos`.
+API REST didática de produtos e categorias, construída com Java 25, Spring Boot, Spring Data JPA e PostgreSQL. Este projeto apresenta dois CRUDs independentes; relacionamentos e estoque entram no Projeto 06 / Aula 23.
 
 ## Requisitos
 

@@ -29,6 +29,11 @@ public class ApiExceptionHandler {
         return resposta(HttpStatus.NOT_FOUND, erro.getMessage());
     }
 
+    @ExceptionHandler(CategoriaNaoEncontradaException.class)
+    ResponseEntity<Map<String, Object>> categoriaNaoEncontrada(CategoriaNaoEncontradaException erro) {
+        return resposta(HttpStatus.NOT_FOUND, erro.getMessage());
+    }
+
     /**
      * Converte falhas de Bean Validation em {@code 400 Bad Request}.
      *

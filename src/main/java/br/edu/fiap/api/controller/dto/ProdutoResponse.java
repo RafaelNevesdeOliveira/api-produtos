@@ -16,7 +16,11 @@ public record ProdutoResponse(
         @Schema(example = "1") Long id,
         @Schema(example = "Teclado mecânico") String nome,
         @Schema(example = "299.90") BigDecimal preco,
-        @Schema(example = "true") boolean ativo) {
+        @Schema(example = "true") boolean ativo,
+        @Schema(example = "1") Long categoriaId,
+        @Schema(example = "Periféricos") String categoriaNome
+        ) {
+
 
     /**
      * Converte a entidade de domínio para o contrato HTTP.
@@ -29,6 +33,9 @@ public record ProdutoResponse(
                 produto.getId(),
                 produto.getNome(),
                 produto.getPreco(),
-                produto.isAtivo());
+                produto.isAtivo(),
+                produto.getCategoria() == null ? null :  produto.getCategoria().getId(),
+                produto.getCategoria() == null ? null :  produto.getCategoria().getNome());
+
     }
 }

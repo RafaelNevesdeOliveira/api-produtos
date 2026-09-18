@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import br.edu.fiap.api.entity.Produto;
 import br.edu.fiap.api.exception.ProdutoNaoEncontradoException;
+import br.edu.fiap.api.repository.CategoriaRepository;
 import br.edu.fiap.api.repository.ProdutoRepository;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -17,6 +18,9 @@ import org.junit.jupiter.api.Test;
 
 /**
  * Testes unitários da camada de aplicação, sem iniciar Spring ou PostgreSQL.
+ *
+ * <p><strong>Camada testada:</strong> {@code service}. Confirma que as regras
+ * de produto funcionam com repositories falsos.</p>
  */
 class ProdutoServiceTest {
     private RepositorioFalso repositorioFalso;
@@ -29,7 +33,15 @@ class ProdutoServiceTest {
                 ProdutoRepository.class.getClassLoader(),
                 new Class<?>[] {ProdutoRepository.class},
                 repositorioFalso);
-        service = new ProdutoService(repository);
+        CategoriaRepository categoriaRepository = (CategoriaRepository) Proxy.newProxyInstance(
+                CategoriaRepository.class.getClassLoader(),
+                new Class<?>[] {CategoriaRepository.class},
+                (proxy, method, args) -> switch (method.getName()) {
+                    case "findById" -> Optional.empty();
+                    case "toString" -> "CategoriaRepositoryFalso";
+                    default -> throw new UnsupportedOperationException(method.getName());
+                });
+        service = new ProdutoService(repository, categoriaRepository);
     }
 
     @Test
@@ -47,7 +59,7 @@ class ProdutoServiceTest {
         Produto produto = produto();
         repositorioFalso.salvo = produto;
 
-        Produto criado = service.criar("Teclado", new BigDecimal("299.90"), true);
+        Produto criado = service.criar("Teclado", new BigDecimal("299.90"), true, null);
 
         assertThat(criado).isSameAs(produto);
     }
@@ -70,7 +82,7 @@ class ProdutoServiceTest {
     }
 
     private Produto produto() {
-        return new Produto("Teclado", new BigDecimal("299.90"), true);
+        return new Produto("Teclado", new BigDecimal("299.90"), true, null);
     }
 
     /**

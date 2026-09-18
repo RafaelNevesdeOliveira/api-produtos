@@ -20,6 +20,7 @@ public record ProdutoRequest(
         @Schema(description = "Preço de venda", example = "299.90")
         @NotNull @DecimalMin(value = "0.01") BigDecimal preco,
         @Schema(description = "Indica se o produto está disponível", example = "true")
-        boolean ativo
+        boolean ativo,
+        @Schema(description = "Identificador da categoria", example = "1") Long categoriaId
 ) {
 }
