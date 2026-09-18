@@ -21,6 +21,7 @@ import org.springframework.context.annotation.Configuration;
         ),
         tags = {
                 @Tag(name = "Produtos", description = "Operações CRUD de produtos"),
+                @Tag(name = "Categorias", description = "Operações CRUD de categorias"),
                 @Tag(name = "Saúde", description = "Verificação de disponibilidade")
         }
 )
